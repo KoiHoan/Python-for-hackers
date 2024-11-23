@@ -1,0 +1,11 @@
+mail
+www
+admin
+account
+blog
+gpt
+search
+shop
+hahnemann
+haha
+chat
