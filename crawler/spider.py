@@ -3,7 +3,7 @@ import requests
 import re
 import urllib.parse as urlparse
 
-TARGET_URL = "192.168.209.130/mutillidae"
+TARGET_URL = "192.168.209.130/mutillidae/"
 target_links = []
 
 def check_request(url):
@@ -21,7 +21,7 @@ def crawl(url):
     href_links = extract_links_from(url)
     for link in href_links:
         link=urlparse.urljoin(url, link) #join the base url with the relative url
-        # print(link)
+        print(link)
         if "#" in link:
             link = link.split("#")[0] #remove the anchor part of the url
         if TARGET_URL in link and link not in target_links: #remove external links and duplicates
