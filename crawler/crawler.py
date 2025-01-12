@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import requests
 
-TARGET_URL = "192.168.209.130/mutillidae"
+TARGET_URL = "mercury.picoctf.net:27278/"
 
 def check_request(url):
     url = f"http://{url}"
